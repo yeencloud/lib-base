@@ -3,6 +3,7 @@ package base_service
 import (
 	"errors"
 
+	"github.com/yeencloud/lib-logger"
 	"github.com/yeencloud/lib-shared"
 
 	"github.com/yeencloud/lib-logger/domain"

@@ -9,6 +9,6 @@ import (
 
 func configureLogger(bs *BaseService) error {
 	return bs.Container.Invoke(func(env *config.Environment) {
-		logger.AddMiddleware(zlm.NewZeroLogMiddleware(env.IsProduction()))
+		Logger.AddMiddleware(zlm.NewZeroLogMiddleware(env.IsProduction()))
 	})
 }

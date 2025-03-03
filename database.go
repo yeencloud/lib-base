@@ -21,8 +21,7 @@ func (bs *BaseService) ProvideDatabase() error {
 }
 
 func (bs *BaseService) newDatabase(dbcfg *domain.DatabaseConfig) (*database.Database, error) {
-	switch dbcfg.Engine {
-	case "POSTGRES":
+	if dbcfg.Engine == "POSTGRES" {
 		err := config.RegisterConfig[domain.PostgresConfig](bs.Config)
 		if err != nil {
 			return nil, err
@@ -41,6 +40,9 @@ func (bs *BaseService) newDatabase(dbcfg *domain.DatabaseConfig) (*database.Data
 			mmi = m
 			return nil
 		})
+		if err != nil {
+			return nil, err
+		}
 
 		return database.NewPostgresDatabase(pgcfg, mmi)
 	}

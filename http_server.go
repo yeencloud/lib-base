@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	LoggerDomain "github.com/yeencloud/lib-logger/domain"
 	"github.com/yeencloud/lib-shared"
 
 	"github.com/yeencloud/lib-httpserver"
@@ -34,21 +35,23 @@ func (bs *BaseService) newHttpServer(config *domain.HttpServerConfig) *httpserve
 	service := httpserver.NewHttpServer(config)
 
 	service.Gin.Use(func(ct *gin.Context) {
-
-		//get context
+		// get context
 		sharedContext, _ := ct.Get("shared")
-		ctx := sharedContext.(*shared.Context)
+		ctx, ok := sharedContext.(*shared.Context)
+		if !ok {
+			Logger.Log(LoggerDomain.LogLevelWarn).Msg("Failed to get shared context")
+		}
 
-		//fetch path
+		// fetch path
 		path := service.GetPath(ct)
 		ctx.WithValue(domain.LogHttpMethodField, ct.Request.Method)
 		ctx.WithValue(domain.LogHttpPathField, path)
 
-		//timing the request
+		// timing the request
 		latency := service.ProfileNextRequest(ct)
 		ctx.WithValue(domain.LogHttpResponseTimeField, latency.Milliseconds())
 
-		//Log Level
+		// Log Level
 		status := ct.Writer.Status()
 		level := service.MapHttpStatusToLoggingLevel(ct)
 		ctx.WithValue(domain.LogHttpResponseStatusCodeField, status)

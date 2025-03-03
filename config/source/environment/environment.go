@@ -16,6 +16,5 @@ func NewConfigFromEnvironmentVariables() *ConfigFromEnvironmentVariables {
 }
 
 func (c ConfigFromEnvironmentVariables) ReadString(key string) (string, error) {
-	//read from environment variables
 	return os.Getenv(key), nil
 }

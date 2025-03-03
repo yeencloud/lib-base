@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 
+	LoggerDomain "github.com/yeencloud/lib-logger/domain"
 	"github.com/yeencloud/lib-shared"
 
 	"github.com/yeencloud/lib-httpserver"
@@ -69,13 +70,13 @@ func NewService(serviceName string) (*BaseService, error) {
 		return nil, err
 	}
 
-	logger.Log(LoggerDomain.LogLevelDebug).Msg("Base service created")
+	Logger.Log(LoggerDomain.LogLevelDebug).Msg("Base service created")
 	return bs, nil
 }
 
 func handleError(err error) {
 	if err != nil {
-		logger.Log(LoggerDomain.LogLevelError).WithField(LoggerDomain.LogFieldError, err).Msg("Error occurred")
+		Logger.Log(LoggerDomain.LogLevelError).WithField(LoggerDomain.LogFieldError, err).Msg("Error occurred")
 		os.Exit(1)
 	}
 }
