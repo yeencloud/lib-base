@@ -1,4 +1,4 @@
-package base_service
+package service
 
 import (
 	"os"
