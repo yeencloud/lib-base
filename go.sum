@@ -128,8 +128,8 @@ github.com/yeencloud/lib-metrics-addon-influxdb v0.1.0 h1:7VsclU6vWNFTYpgJhYuZAo
 github.com/yeencloud/lib-metrics-addon-influxdb v0.1.0/go.mod h1:b3K0hcsqZDTEqZzO2mlbVbmAjC8KgzcF61bIPKmssSE=
 github.com/yeencloud/lib-shared v0.1.0 h1:2i69Y4dOoRhKLDLUZ+IRTsy7utqrtwUbaLtXwDFJtns=
 github.com/yeencloud/lib-shared v0.1.0/go.mod h1:UFGbti2J/h179bvodfK/YpIiV94hiA4vlni1Cgc575k=
-go.uber.org/dig v1.18.0 h1:imUL1UiY0Mg4bqbFfsRQO5G4CGRBec/ZujWTvSVp3pw=
-go.uber.org/dig v1.18.0/go.mod h1:Us0rSJiThwCv2GteUN0Q7OKvU7n5J4dxZ9JKUXozFdE=
+go.uber.org/dig v1.18.1 h1:rLww6NuajVjeQn+49u5NcezUJEGwd5uXmyoCKW2g5Es=
+go.uber.org/dig v1.18.1/go.mod h1:Us0rSJiThwCv2GteUN0Q7OKvU7n5J4dxZ9JKUXozFdE=
 golang.org/x/arch v0.12.0 h1:UsYJhbzPYGsT0HbEdmYcqtCv8UNGvnaL561NnIUvaKg=
 golang.org/x/arch v0.12.0/go.mod h1:FEVrYAQjsQXMVJ1nsMoVVXPZg6p2JE2mx8psSWTDQys=
 golang.org/x/crypto v0.31.0 h1:ihbySMvVjLAeSH1IbfcRTkD/iNscyz8rGzjF/E5hV6U=

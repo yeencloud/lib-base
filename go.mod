@@ -15,7 +15,7 @@ require (
 	github.com/yeencloud/lib-metrics v0.1.0
 	github.com/yeencloud/lib-metrics-addon-influxdb v0.1.0
 	github.com/yeencloud/lib-shared v0.1.0
-	go.uber.org/dig v1.18.0
+	go.uber.org/dig v1.18.1
 )
 
 require (
