@@ -126,8 +126,8 @@ github.com/yeencloud/lib-metrics v0.1.0 h1:G8IfCmPKgq+giypOyjOZvXHU9FfbjCrYmPSlr
 github.com/yeencloud/lib-metrics v0.1.0/go.mod h1:Sdk61XkURdWWbvBM+y5M6pH8JUtdDCv9iYsJ71TISL4=
 github.com/yeencloud/lib-metrics-addon-influxdb v0.1.0 h1:7VsclU6vWNFTYpgJhYuZAootUv1qWdPoJs58zfwz1FA=
 github.com/yeencloud/lib-metrics-addon-influxdb v0.1.0/go.mod h1:b3K0hcsqZDTEqZzO2mlbVbmAjC8KgzcF61bIPKmssSE=
-github.com/yeencloud/lib-shared v0.1.0 h1:2i69Y4dOoRhKLDLUZ+IRTsy7utqrtwUbaLtXwDFJtns=
-github.com/yeencloud/lib-shared v0.1.0/go.mod h1:UFGbti2J/h179bvodfK/YpIiV94hiA4vlni1Cgc575k=
+github.com/yeencloud/lib-shared v0.1.1 h1:C5D4691AsDojXJ0ZA/XU681Q9tshk8SH8qSyDdC5LFk=
+github.com/yeencloud/lib-shared v0.1.1/go.mod h1:UFGbti2J/h179bvodfK/YpIiV94hiA4vlni1Cgc575k=
 go.uber.org/dig v1.18.0 h1:imUL1UiY0Mg4bqbFfsRQO5G4CGRBec/ZujWTvSVp3pw=
 go.uber.org/dig v1.18.0/go.mod h1:Us0rSJiThwCv2GteUN0Q7OKvU7n5J4dxZ9JKUXozFdE=
 golang.org/x/arch v0.12.0 h1:UsYJhbzPYGsT0HbEdmYcqtCv8UNGvnaL561NnIUvaKg=
