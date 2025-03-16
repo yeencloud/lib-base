@@ -1,14 +1,21 @@
 package service
 
 import (
-	"github.com/yeencloud/lib-logger"
-	zlm "github.com/yeencloud/lib-logger-addon-zerolog"
+	"os"
 
-	"github.com/yeencloud/lib-base/domain/config"
+	log "github.com/sirupsen/logrus"
 )
 
-func configureLogger(bs *BaseService) error {
-	return bs.Container.Invoke(func(env *config.Environment) {
-		Logger.AddMiddleware(zlm.NewZeroLogMiddleware(env.IsProduction()))
+func configureLogger() {
+	log.SetFormatter(&log.TextFormatter{
+		ForceColors: true,
 	})
+
+	log.SetLevel(log.TraceLevel)
+	if os.Getenv("ENV") == "production" { // TODO
+		log.SetFormatter(&log.JSONFormatter{})
+		log.SetReportCaller(true)
+	}
+
+	log.SetOutput(os.Stdout)
 }

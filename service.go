@@ -5,78 +5,70 @@ import (
 
 	"github.com/go-playground/validator/v10"
 
-	LoggerDomain "github.com/yeencloud/lib-logger/domain"
-	"github.com/yeencloud/lib-shared"
-
+	database "github.com/yeencloud/lib-database"
 	"github.com/yeencloud/lib-httpserver"
-	"github.com/yeencloud/lib-logger"
+	"github.com/yeencloud/lib-shared/config"
+	"github.com/yeencloud/lib-shared/config/source/environment"
 
-	"github.com/yeencloud/lib-base/config"
-	"github.com/yeencloud/lib-base/config/source/environment"
-	"github.com/yeencloud/lib-base/depinjection"
-	configDomain "github.com/yeencloud/lib-base/domain/config"
+	log "github.com/sirupsen/logrus"
 )
 
 type BaseService struct {
-	Container depinjection.DependencyInjection
-
 	Config *config.Config
 	Name   string
+
+	Database *database.Database
+	Http     *httpserver.HttpServer
 
 	Validator *validator.Validate
 }
 
 func NewService(serviceName string) (*BaseService, error) {
-	digInstance := depinjection.NewDI()
+	hostname, err := os.Hostname()
+	if err != nil {
+		return nil, err
+	}
 
 	configSource := environment.NewConfigFromEnvironmentVariables()
 	bs := &BaseService{
-		Container: digInstance,
-		Config:    config.NewConfig(digInstance, configSource),
-		Name:      serviceName,
+		Config: config.NewConfig(configSource),
+		Name:   serviceName,
 
 		Validator: validator.New(),
 	}
 
-	err := config.RegisterConfig[configDomain.Environment](bs.Config)
+	configureLogger()
+
+	err = bs.ProvideMetrics(hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	err = configureLogger(bs)
+	// Sending start metric as soon as possible
+	err = logServiceStart()
 	if err != nil {
 		return nil, err
 	}
 
-	shared.SetServiceName(serviceName)
-
-	err = digInstance.Provide(shared.GetServiceName)
+	db, err := bs.NewDatabase()
 	if err != nil {
 		return nil, err
 	}
+	bs.Database = db
 
-	err = bs.ProvideMetrics()
+	http, err := bs.NewHttpServer()
 	if err != nil {
 		return nil, err
 	}
+	bs.Http = http
 
-	err = bs.ProvideDatabase()
-	if err != nil {
-		return nil, err
-	}
-
-	err = bs.ProvideHttpServer()
-	if err != nil {
-		return nil, err
-	}
-
-	Logger.Log(LoggerDomain.LogLevelDebug).Msg("Base service created")
+	log.Info("Base service created")
 	return bs, nil
 }
 
 func handleError(err error) {
 	if err != nil {
-		Logger.Log(LoggerDomain.LogLevelError).WithField(LoggerDomain.LogFieldError, err).Msg("Error occurred")
+		log.WithError(err).Fatal("an error occurred during initialization")
 		os.Exit(1)
 	}
 }
@@ -88,9 +80,6 @@ func Run(serviceName string, serviceLogic func(baseService *BaseService) error) 
 	err = serviceLogic(baseService)
 	handleError(err)
 
-	err = baseService.Container.Invoke(func(engine *httpserver.HttpServer) error {
-		return engine.Run()
-	})
-
+	err = baseService.Http.Run()
 	handleError(err)
 }

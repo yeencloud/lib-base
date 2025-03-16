@@ -1,67 +1,25 @@
 package service
 
 import (
-	"fmt"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-
-	LoggerDomain "github.com/yeencloud/lib-logger/domain"
-	"github.com/yeencloud/lib-shared"
-
+	"github.com/yeencloud/lib-base/health"
 	"github.com/yeencloud/lib-httpserver"
 	"github.com/yeencloud/lib-httpserver/domain"
-	"github.com/yeencloud/lib-logger"
-
-	"github.com/yeencloud/lib-base/config"
-	"github.com/yeencloud/lib-base/health"
+	"github.com/yeencloud/lib-shared/config"
 )
-
-func (bs *BaseService) ProvideHttpServer() error {
-	err := config.RegisterConfig[domain.HttpServerConfig](bs.Config)
-
-	if err != nil {
-		return err
-	}
-
-	return bs.Container.Provide(bs.newHttpServer)
-}
 
 type Test struct {
 	Name string
 }
 
-func (bs *BaseService) newHttpServer(config *domain.HttpServerConfig) *httpserver.HttpServer {
-	service := httpserver.NewHttpServer(config)
+func (bs *BaseService) NewHttpServer() (*httpserver.HttpServer, error) {
+	cfg, err := config.FetchConfig[domain.HttpServerConfig]()
+	if err != nil {
+		return nil, err
+	}
 
-	service.Gin.Use(func(ct *gin.Context) {
-		// get context
-		sharedContext, _ := ct.Get("shared")
-		ctx, ok := sharedContext.(*shared.Context)
-		if !ok {
-			Logger.Log(LoggerDomain.LogLevelWarn).Msg("Failed to get shared context")
-		}
-
-		// fetch path
-		path := service.GetPath(ct)
-		ctx.WithValue(domain.LogHttpMethodField, ct.Request.Method)
-		ctx.WithValue(domain.LogHttpPathField, path)
-
-		// timing the request
-		latency := service.ProfileNextRequest(ct)
-		ctx.WithValue(domain.LogHttpResponseTimeField, latency.Milliseconds())
-
-		// Log Level
-		status := ct.Writer.Status()
-		level := service.MapHttpStatusToLoggingLevel(ct)
-		ctx.WithValue(domain.LogHttpResponseStatusCodeField, status)
-
-		bs.StoreMetricsFromRequest(ctx)
-		message := fmt.Sprintf("%s %s %d %s", ct.Request.Method, ct.Request.URL.Path, status, http.StatusText(status))
-		Logger.Log(level).WithField(domain.LogHttpResponseTimeField, latency.Milliseconds()).Msg(message)
-	})
+	service := httpserver.NewHttpServer(cfg)
 
 	health.NewHealthProbeWithCustomGin(service.Gin)
 
-	return service
+	return service, nil
 }
