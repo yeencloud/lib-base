@@ -6,10 +6,11 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/yeencloud/lib-database v0.2.0
-	github.com/yeencloud/lib-httpserver v0.2.0
-	github.com/yeencloud/lib-metrics v0.2.1
-	github.com/yeencloud/lib-shared v0.2.0
+	github.com/yeencloud/lib-database v0.2.1
+	github.com/yeencloud/lib-httpserver v0.2.1
+	github.com/yeencloud/lib-metrics v0.2.2
+	github.com/yeencloud/lib-shared v0.2.1
+	gorm.io/gorm v1.25.12
 )
 
 require (
@@ -56,5 +57,4 @@ require (
 	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.5.11 // indirect
-	gorm.io/gorm v1.25.12 // indirect
 )

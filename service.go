@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"os"
 
 	"github.com/go-playground/validator/v10"
@@ -9,6 +10,7 @@ import (
 	"github.com/yeencloud/lib-httpserver"
 	"github.com/yeencloud/lib-shared/config"
 	"github.com/yeencloud/lib-shared/config/source/environment"
+	sharedLog "github.com/yeencloud/lib-shared/log"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -73,11 +75,14 @@ func handleError(err error) {
 	}
 }
 
-func Run(serviceName string, serviceLogic func(baseService *BaseService) error) {
+func Run(serviceName string, serviceLogic func(ctx context.Context, baseService *BaseService) error) {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, sharedLog.ContextLoggerKey, log.NewEntry(log.StandardLogger())) // nolint:staticcheck
+
 	baseService, err := NewService(serviceName)
 	handleError(err)
 
-	err = serviceLogic(baseService)
+	err = serviceLogic(ctx, baseService)
 	handleError(err)
 
 	err = baseService.Http.Run()
