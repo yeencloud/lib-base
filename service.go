@@ -6,26 +6,37 @@ import (
 
 	"github.com/go-playground/validator/v10"
 
+	"github.com/yeencloud/lib-base/health"
 	database "github.com/yeencloud/lib-database"
 	"github.com/yeencloud/lib-httpserver"
 	"github.com/yeencloud/lib-shared/config"
 	"github.com/yeencloud/lib-shared/config/source/environment"
+	"github.com/yeencloud/lib-shared/env"
 	sharedLog "github.com/yeencloud/lib-shared/log"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type BaseService struct {
-	Config *config.Config
-	Name   string
+	Config  *config.Config
+	Probe   *health.Probe
+	options Options
+	name    string
 
-	Database *database.Database
-	Http     *httpserver.HttpServer
+	database *database.Database
+	http     *httpserver.HttpServer
 
 	Validator *validator.Validate
+
+	Environment env.Environment
 }
 
-func NewService(serviceName string) (*BaseService, error) {
+type Options struct {
+	UseDatabase bool
+	UseEvents   bool
+}
+
+func newService(serviceName string, options Options) (*BaseService, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
@@ -34,35 +45,45 @@ func NewService(serviceName string) (*BaseService, error) {
 	configSource := environment.NewConfigFromEnvironmentVariables()
 	bs := &BaseService{
 		Config: config.NewConfig(configSource),
-		Name:   serviceName,
+		name:   serviceName,
+
+		options: options,
 
 		Validator: validator.New(),
+		Probe:     health.NewHealthProbe(hostname),
 	}
 
-	configureLogger()
+	envVar, err := config.FetchConfig[env.Environment]()
+	if err != nil {
+		return nil, err
+	}
+	bs.Environment = *envVar
 
-	err = bs.ProvideMetrics(hostname)
+	configureLogger(envVar)
+
+	err = bs.provideMetrics(hostname)
 	if err != nil {
 		return nil, err
 	}
 
 	// Sending start metric as soon as possible
-	err = logServiceStart()
-	if err != nil {
-		return nil, err
+	trackServiceStart()
+
+	if options.UseDatabase {
+		err = bs.newDatabase()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	db, err := bs.NewDatabase()
-	if err != nil {
-		return nil, err
-	}
-	bs.Database = db
+	if options.UseEvents {
 
-	http, err := bs.NewHttpServer()
+	}
+
+	err = bs.newHttpServer()
 	if err != nil {
 		return nil, err
 	}
-	bs.Http = http
 
 	log.Info("Base service created")
 	return bs, nil
@@ -75,16 +96,21 @@ func handleError(err error) {
 	}
 }
 
-func Run(serviceName string, serviceLogic func(ctx context.Context, baseService *BaseService) error) {
+func Run(serviceName string, options Options, serviceLogic func(ctx context.Context, baseService *BaseService) error) {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, sharedLog.ContextLoggerKey, log.NewEntry(log.StandardLogger())) // nolint:staticcheck
 
-	baseService, err := NewService(serviceName)
+	logger := log.NewEntry(log.StandardLogger())
+	ctx = sharedLog.WithLogger(ctx, logger)
+
+	baseService, err := newService(serviceName, options)
 	handleError(err)
 
 	err = serviceLogic(ctx, baseService)
 	handleError(err)
 
-	err = baseService.Http.Run()
+	// Start the HTTP server
+	// It will always run whatever the service logic is because we want to expose the health check endpoint for monitoring
+	// If we need another blocking operation, we can run it in a goroutine in the service logic
+	err = baseService.http.Run()
 	handleError(err)
 }

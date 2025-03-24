@@ -1,32 +1,37 @@
 package health
 
 import (
-	"os"
-
-	"github.com/gin-gonic/gin"
+	"github.com/yeencloud/lib-base/domain/health"
 )
 
-type HealthProbe struct {
-	Hostname string `json:"hostname"`
-
-	Status string `json:"status"`
+type Probe struct {
+	Hostname string
+	Probes   []HealthProbe.HealthProbe `json:"probes"`
 }
 
-func newHealthProbe() *HealthProbe {
-	hostname, _ := os.Hostname()
+type ServiceHealth struct {
+	Hostname string `json:"hostname"`
 
-	return &HealthProbe{
-		Status:   "ok",
-		Hostname: hostname,
+	RawStatus HealthProbe.Status `json:"rawStatus"`
+	Status    string             `json:"status"`
+}
+
+func (p *Probe) Health() *ServiceHealth {
+	currentStatus := HealthProbe.ProbeStatusHealthy
+	for _, probe := range p.Probes {
+		probeStatus := probe.ProbeStatus()
+		currentStatus = min(currentStatus, probeStatus)
+	}
+
+	return &ServiceHealth{
+		RawStatus: currentStatus,
+		Status:    currentStatus.String(),
+		Hostname:  p.Hostname,
 	}
 }
 
-func NewHealthProbeWithCustomGin(engine *gin.Engine) *HealthProbe {
-	healthProbe := newHealthProbe()
-
-	engine.GET("/health", func(ctx *gin.Context) {
-		ctx.JSON(200, healthProbe)
-	})
-
-	return healthProbe
+func NewHealthProbe(hostname string) *Probe {
+	return &Probe{
+		Hostname: hostname,
+	}
 }

@@ -10,6 +10,8 @@ import (
 	"github.com/yeencloud/lib-shared/namespace"
 )
 
+const LogMetricPointName = "logs"
+
 type IngestHook struct{}
 
 func (h *IngestHook) Levels() []log.Level {
@@ -18,6 +20,7 @@ func (h *IngestHook) Levels() []log.Level {
 
 func (h *IngestHook) Fire(entry *log.Entry) error {
 	tags := map[string]string{}
+	//TODO: replace keys with constants
 	values := MetricsDomain.Values{
 		"level": entry.Level.String(),
 		"!":     entry.Message, // this is a hack to make sure the message is always the first field (otherwise it won't be displayed in grafana, why ?)
@@ -36,8 +39,9 @@ func (h *IngestHook) Fire(entry *log.Entry) error {
 		}
 	}
 
-	return metrics.LogPoint(MetricsDomain.Point{
-		Name: "logs",
+	metrics.LogPoint(MetricsDomain.Point{
+		Name: LogMetricPointName,
 		Tags: tags,
 	}, values)
+	return nil
 }
