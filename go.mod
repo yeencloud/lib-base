@@ -6,7 +6,7 @@ toolchain go1.23.4
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-playground/validator/v10 v10.25.0
+	github.com/go-playground/validator/v10 v10.26.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/yeencloud/lib-database v0.2.3
