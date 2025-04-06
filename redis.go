@@ -15,9 +15,7 @@ func (bs *BaseService) configureRedis() error {
 		return err
 	}
 
-	var redisEngine *redis.Client
-
-	redisEngine = redis.NewClient(&redis.Options{
+	redisEngine := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", rdscfg.Host, rdscfg.Port),
 		Password: rdscfg.Password,
 		DB:       rdscfg.Database,

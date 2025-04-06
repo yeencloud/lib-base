@@ -133,9 +133,9 @@ func Run(serviceName string, options Options, serviceLogic func(ctx context.Cont
 
 	if baseService.options.UseEvents {
 		go func() {
-			err := baseService.mqSubscriber.Listen(context.Background())
-			if err != nil {
-				handleError(err)
+			gerr := baseService.mqSubscriber.Listen(context.Background())
+			if gerr != nil {
+				handleError(gerr)
 			}
 		}()
 	}
