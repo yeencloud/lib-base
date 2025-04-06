@@ -5,14 +5,13 @@ go 1.23.0
 toolchain go1.23.4
 
 require (
-	github.com/davecgh/go-spew v1.1.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sirupsen/logrus v1.9.3
-	github.com/yeencloud/lib-database v0.2.2
+	github.com/yeencloud/lib-database v0.2.3
 	github.com/yeencloud/lib-events v0.1.0
-	github.com/yeencloud/lib-httpserver v0.2.2
+	github.com/yeencloud/lib-httpserver v0.2.3
 	github.com/yeencloud/lib-metrics v0.2.4
 	github.com/yeencloud/lib-shared v0.2.3
 	gorm.io/gorm v1.25.12
