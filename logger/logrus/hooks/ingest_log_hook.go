@@ -6,13 +6,25 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	metrics "github.com/yeencloud/lib-metrics"
-	MetricsDomain "github.com/yeencloud/lib-metrics/domain"
+	metricsDomain "github.com/yeencloud/lib-metrics/domain"
 	"github.com/yeencloud/lib-shared/namespace"
 )
 
 const LogMetricPointName = "logs"
 
-type IngestHook struct{}
+type LogMetric struct {
+	metricsDomain.BaseMetric
+
+	Level      string         `metric:"level"`
+	Msg        string         `metric:"msg"`
+	MsgKey     string         `metric:"!"` // this is a hack to make sure the message is always the first field (otherwise it won't be displayed in grafana, why ?)
+	Additional map[string]any `metric:"additional"`
+}
+
+type IngestHook struct {
+	ServiceName string
+	HostName    string
+}
 
 func (h *IngestHook) Levels() []log.Level {
 	return log.AllLevels
@@ -20,13 +32,7 @@ func (h *IngestHook) Levels() []log.Level {
 
 func (h *IngestHook) Fire(entry *log.Entry) error {
 	tags := map[string]string{}
-	//TODO: replace keys with constants
-	values := MetricsDomain.Values{
-		"level": entry.Level.String(),
-		"!":     entry.Message, // this is a hack to make sure the message is always the first field (otherwise it won't be displayed in grafana, why ?)
-		"msg":   entry.Message,
-	}
-
+	values := map[string]any{}
 	for k, v := range entry.Data {
 		if ns, ok := v.(namespace.NamespaceValue); ok {
 			if ns.Namespace.IsMetricTag {
@@ -38,10 +44,12 @@ func (h *IngestHook) Fire(entry *log.Entry) error {
 			values[k] = fmt.Sprintf("%v", v)
 		}
 	}
+	metric := LogMetric{
+		Level:      entry.Level.String(),
+		Msg:        entry.Message,
+		MsgKey:     "[" + h.HostName + "] " + entry.Message,
+		Additional: values,
+	}
 
-	metrics.LogPoint(MetricsDomain.Point{
-		Name: LogMetricPointName,
-		Tags: tags,
-	}, values)
-	return nil
+	return metrics.WritePoint(entry.Context, "logs", metric)
 }

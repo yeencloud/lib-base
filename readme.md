@@ -1,0 +1,1 @@
+# Framework base for all services

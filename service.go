@@ -5,9 +5,12 @@ import (
 	"os"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
+	metrics "github.com/yeencloud/lib-metrics"
 
 	"github.com/yeencloud/lib-base/health"
 	database "github.com/yeencloud/lib-database"
+	events "github.com/yeencloud/lib-events"
 	"github.com/yeencloud/lib-httpserver"
 	"github.com/yeencloud/lib-shared/config"
 	"github.com/yeencloud/lib-shared/config/source/environment"
@@ -18,13 +21,20 @@ import (
 )
 
 type BaseService struct {
-	Config  *config.Config
-	Probe   *health.Probe
-	options Options
-	name    string
+	Config *config.Config
+	Probe  *health.Probe
 
-	database *database.Database
-	http     *httpserver.HttpServer
+	options Options
+
+	name     string
+	hostname string
+
+	database     *database.Database
+	http         *httpserver.HttpServer
+	metrics      *metrics.Metrics
+	redis        *redis.Client
+	mqSubscriber *events.Subscriber
+	mqPublisher  *events.Publisher
 
 	Validator *validator.Validate
 
@@ -47,7 +57,8 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 		Config: config.NewConfig(configSource),
 		name:   serviceName,
 
-		options: options,
+		hostname: hostname,
+		options:  options,
 
 		Validator: validator.New(),
 		Probe:     health.NewHealthProbe(hostname),
@@ -61,23 +72,35 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 
 	configureLogger(envVar)
 
+	log.Info("starting metrics")
 	err = bs.provideMetrics(hostname)
 	if err != nil {
 		return nil, err
 	}
 
 	// Sending start metric as soon as possible
-	trackServiceStart()
+	err = bs.trackServiceStart(context.TODO())
+	if err != nil {
+		return nil, err
+	}
 
 	if options.UseDatabase {
+		log.Info("starting database")
 		err = bs.newDatabase()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if options.UseEvents {
+	err = bs.configureRedis()
+	if err != nil {
+		return nil, err
+	}
 
+	if options.UseEvents {
+		log.Info("Loading event manager")
+		bs.mqSubscriber = events.NewSubscriber(bs.redis)
+		bs.mqPublisher = events.NewPublisher(bs.redis)
 	}
 
 	err = bs.newHttpServer()
@@ -107,6 +130,15 @@ func Run(serviceName string, options Options, serviceLogic func(ctx context.Cont
 
 	err = serviceLogic(ctx, baseService)
 	handleError(err)
+
+	if baseService.options.UseEvents {
+		go func() {
+			err := baseService.mqSubscriber.Listen(context.Background())
+			if err != nil {
+				handleError(err)
+			}
+		}()
+	}
 
 	// Start the HTTP server
 	// It will always run whatever the service logic is because we want to expose the health check endpoint for monitoring

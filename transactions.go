@@ -26,20 +26,20 @@ func HandleWithTransaction(http *httpserver.HttpServer, trxItf transaction.Trans
 			trxItf = transaction.NoTransaction{}
 		}
 
-		logMessage.Info("Start transaction")
+		logMessage.WithContext(ctx).Info("Start transaction")
 		trx := trxItf.Begin()
 		ctx.Set(databaseDomain.DatabaseCtxKey, trx)
 
 		body, err := handler(ctx)
 		if err != nil {
 			http.ReplyWithError(ctx, err)
-			logMessage.Warn("Rollback transaction")
+			logMessage.WithContext(ctx).Warn("Rollback transaction")
 			trx.Rollback()
 			return
 		}
 
 		http.Reply(ctx, body)
-		logMessage.Info("Commit transaction")
+		logMessage.WithContext(ctx).Info("Commit transaction")
 		trx.Commit()
 	}
 }

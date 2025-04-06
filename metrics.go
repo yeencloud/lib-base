@@ -1,13 +1,20 @@
 package service
 
 import (
-	log "github.com/sirupsen/logrus"
+	"context"
 
+	log "github.com/sirupsen/logrus"
 	baseMetricsDomain "github.com/yeencloud/lib-base/domain/metrics"
 	"github.com/yeencloud/lib-base/logger/logrus/hooks"
 	metrics "github.com/yeencloud/lib-metrics"
-	MetricsDomain "github.com/yeencloud/lib-metrics/domain"
+	metricsDomain "github.com/yeencloud/lib-metrics/domain"
 )
+
+type ServiceStartPointMetrics struct {
+	metricsDomain.BaseMetric
+
+	Start int `metric:"start"`
+}
 
 func (bs *BaseService) provideMetrics(hostname string) error {
 	mtrcs, err := metrics.NewMetrics(bs.name, hostname)
@@ -22,14 +29,18 @@ func (bs *BaseService) provideMetrics(hostname string) error {
 		return err
 	}
 
-	log.AddHook(&hooks.IngestHook{})
+	bs.metrics = mtrcs
+
+	log.AddHook(&hooks.IngestHook{
+		HostName:    bs.hostname,
+		ServiceName: bs.name,
+	})
+
 	return nil
 }
 
-func trackServiceStart() {
-	metrics.LogPoint(MetricsDomain.Point{ //TODO: use a constant for the metric value
-		Name: baseMetricsDomain.ServiceMetricPointName,
-	}, MetricsDomain.Values{
-		"start": 1,
+func (bs *BaseService) trackServiceStart(ctx context.Context) error {
+	return bs.metrics.WritePoint(ctx, baseMetricsDomain.ServiceMetricPointName, ServiceStartPointMetrics{
+		Start: 1,
 	})
 }
