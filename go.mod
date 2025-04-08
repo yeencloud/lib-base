@@ -10,7 +10,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/sirupsen/logrus v1.9.3
 	github.com/yeencloud/lib-database v0.2.3
-	github.com/yeencloud/lib-events v0.1.0
+	github.com/yeencloud/lib-events v0.1.1
 	github.com/yeencloud/lib-httpserver v0.2.3
 	github.com/yeencloud/lib-metrics v0.2.4
 	github.com/yeencloud/lib-shared v0.2.4
