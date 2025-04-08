@@ -13,7 +13,7 @@ require (
 	github.com/yeencloud/lib-events v0.1.0
 	github.com/yeencloud/lib-httpserver v0.2.3
 	github.com/yeencloud/lib-metrics v0.2.4
-	github.com/yeencloud/lib-shared v0.2.3
+	github.com/yeencloud/lib-shared v0.2.4
 	gorm.io/gorm v1.25.12
 )
 
