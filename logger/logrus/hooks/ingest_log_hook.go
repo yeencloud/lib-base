@@ -19,6 +19,8 @@ type LogMetric struct {
 	Msg        string         `metric:"msg"`
 	MsgKey     string         `metric:"!"` // this is a hack to make sure the message is always the first field (otherwise it won't be displayed in grafana, why ?)
 	Additional map[string]any `metric:"additional"`
+
+	Error error `metric:"error"`
 }
 
 type IngestHook struct {
@@ -31,6 +33,16 @@ func (h *IngestHook) Levels() []log.Level {
 }
 
 func (h *IngestHook) Fire(entry *log.Entry) error {
+	var err error
+	errorInterface, ok := entry.Data[log.ErrorKey]
+	if ok {
+		if errr, ok := errorInterface.(error); ok {
+			err = errr
+		}
+	} else {
+		err = nil
+	}
+
 	tags := map[string]string{}
 	values := map[string]any{}
 	for k, v := range entry.Data {
@@ -44,10 +56,17 @@ func (h *IngestHook) Fire(entry *log.Entry) error {
 			values[k] = fmt.Sprintf("%v", v)
 		}
 	}
+
+	msgKey := fmt.Sprintf("[%s] %s", h.HostName, entry.Message)
+	if err != nil {
+		msgKey = msgKey + " (Err: " + err.Error() + ")"
+	}
+
 	metric := LogMetric{
 		Level:      entry.Level.String(),
 		Msg:        entry.Message,
-		MsgKey:     "[" + h.HostName + "] " + entry.Message,
+		MsgKey:     msgKey,
+		Error:      err,
 		Additional: values,
 	}
 

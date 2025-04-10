@@ -4,20 +4,18 @@ import (
 	"context"
 	"os"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/go-redis/redis/v8"
-	metrics "github.com/yeencloud/lib-metrics"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/yeencloud/lib-base/health"
 	database "github.com/yeencloud/lib-database"
 	events "github.com/yeencloud/lib-events"
 	"github.com/yeencloud/lib-httpserver"
+	metrics "github.com/yeencloud/lib-metrics"
 	"github.com/yeencloud/lib-shared/config"
 	"github.com/yeencloud/lib-shared/config/source/environment"
 	"github.com/yeencloud/lib-shared/env"
 	sharedLog "github.com/yeencloud/lib-shared/log"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/yeencloud/lib-shared/validation"
 )
 
 type BaseService struct {
@@ -36,7 +34,7 @@ type BaseService struct {
 	mqSubscriber *events.Subscriber
 	mqPublisher  *events.Publisher
 
-	Validator *validator.Validate
+	Validator *validation.Validator
 
 	Environment env.Environment
 }
@@ -60,8 +58,7 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 		hostname: hostname,
 		options:  options,
 
-		Validator: validator.New(),
-		Probe:     health.NewHealthProbe(hostname),
+		Probe: health.NewHealthProbe(hostname),
 	}
 
 	envVar, err := config.FetchConfig[env.Environment]()
@@ -77,6 +74,13 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	validateEngine, err := NewValidator()
+	if err != nil {
+		return nil, err
+	}
+
+	bs.Validator = validateEngine
 
 	// Sending start metric as soon as possible
 	err = bs.trackServiceStart(context.TODO())
@@ -99,7 +103,7 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 
 	if options.UseEvents {
 		log.Info("Loading event manager")
-		bs.mqSubscriber = events.NewSubscriber(bs.redis)
+		bs.mqSubscriber = events.NewSubscriber(bs.Validator, bs.redis)
 		bs.mqPublisher = events.NewPublisher(bs.redis)
 	}
 
