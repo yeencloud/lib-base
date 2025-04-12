@@ -9,6 +9,7 @@ type Probe struct {
 	Probes   []HealthProbe.HealthProbe `json:"probes"`
 }
 
+// TODO: Add version to the health probe
 type ServiceHealth struct {
 	Hostname string `json:"hostname"`
 
