@@ -69,6 +69,7 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 
 	configureLogger(envVar)
 
+	// TODO: Log version and commit hash
 	log.
 		WithField("service", serviceName).
 		WithField("hostname", hostname).
