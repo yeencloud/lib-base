@@ -10,6 +10,7 @@ import (
 	metricsDomain "github.com/yeencloud/lib-metrics/domain"
 )
 
+// TODO: Determine if we should add the version and commit hash to metrics
 type ServiceStartPointMetrics struct {
 	metricsDomain.BaseMetric
 
