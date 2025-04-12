@@ -69,7 +69,10 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 
 	configureLogger(envVar)
 
-	log.Info("starting metrics")
+	log.
+		WithField("service", serviceName).
+		WithField("hostname", hostname).
+		Info("Start service")
 	err = bs.provideMetrics(hostname)
 	if err != nil {
 		return nil, err
