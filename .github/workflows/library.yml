@@ -10,3 +10,5 @@ on:
 jobs:
   test-and-lint:
     uses: yeencloud/dpl-ci/.github/workflows/test.yml@main
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
