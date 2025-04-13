@@ -1,4 +1,4 @@
-name: Test library
+name: Library CI
 
 on:
   push:
@@ -9,6 +9,24 @@ on:
 
 jobs:
   test-and-lint:
-    uses: yeencloud/dpl-ci/.github/workflows/test.yml@main
+    uses: yeencloud/dpl-ci/.github/workflows/test-and-lint.yml@main
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  assign-issue:
+    needs: test-and-lint
+    uses: yeencloud/dpl-ci/.github/workflows/issue-from-todo.yml@main
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  bump-version:
+    needs: test-and-lint
+    uses: yeencloud/dpl-ci/.github/workflows/bump-version.yml@main
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }} # we don't want this job to trigger a new pipeline run
+
+  create-release:
+    needs: bump-version
+    uses: yeencloud/dpl-ci/.github/workflows/create-release.yml@main
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
