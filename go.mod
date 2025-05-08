@@ -14,7 +14,7 @@ require (
 	github.com/yeencloud/lib-httpserver v0.2.4
 	github.com/yeencloud/lib-metrics v0.2.5
 	github.com/yeencloud/lib-shared v0.2.9
-	gorm.io/gorm v1.25.12
+	gorm.io/gorm v1.26.1
 )
 
 require (
