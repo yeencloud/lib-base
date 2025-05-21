@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.4
 
 require (
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/penglongli/gin-metrics v0.1.13
 	github.com/sirupsen/logrus v1.9.3
