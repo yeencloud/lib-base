@@ -143,8 +143,8 @@ github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65E
 github.com/ugorji/go/codec v1.2.12/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
 github.com/yeencloud/lib-database v0.2.4 h1:qRiVakC4oAov2JVShJ4iI6rvMsDv+PDBK9X0X0Ppo1g=
 github.com/yeencloud/lib-database v0.2.4/go.mod h1:jdiw8NUCrEtybKPliZ2SHFbQ9+34GCGPqgFhdlJaTCA=
-github.com/yeencloud/lib-events v0.1.5 h1:6dvevMUPoumyiglKd2VsvNdZ2Q9io25Mx0rM7tQgKsQ=
-github.com/yeencloud/lib-events v0.1.5/go.mod h1:d8lP3BcS5lshSOQb6gC11298M860CkmONjjvLzvOU2k=
+github.com/yeencloud/lib-events v0.1.6 h1:BCpxAw/FDe+23fv8eeyLNBU12Cb6ulzOIJvf/H8fMVw=
+github.com/yeencloud/lib-events v0.1.6/go.mod h1:MJdxPmQTgtt7CUICJ7fByO4xSp9WwoUBwITpfvqNgt0=
 github.com/yeencloud/lib-httpserver v0.2.4 h1:7P05KXBGQx8OsNiNJ+BF3XaC07yfZ7UCumHPfeAnRps=
 github.com/yeencloud/lib-httpserver v0.2.4/go.mod h1:Qr/6BMJaY4hNVmMEPHUvMxd32GBe256QtEjkZuuQM+Y=
 github.com/yeencloud/lib-metrics v0.2.5 h1:++mW/NDpNQatdd1UlLTKDKc/SmqLCC8hskO1ZxRCSxg=

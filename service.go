@@ -114,7 +114,7 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 
 	if options.UseEvents {
 		log.Info("Loading event manager")
-		bs.mqSubscriber = events.NewSubscriber(bs.Validator, bs.redis)
+		bs.mqSubscriber = events.NewSubscriber(bs.Validator, bs.name, bs.hostname, bs.redis)
 		bs.mqPublisher = events.NewPublisher(bs.redis)
 	}
 

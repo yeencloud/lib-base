@@ -10,7 +10,7 @@ require (
 	github.com/penglongli/gin-metrics v0.1.13
 	github.com/sirupsen/logrus v1.9.3
 	github.com/yeencloud/lib-database v0.2.4
-	github.com/yeencloud/lib-events v0.1.5
+	github.com/yeencloud/lib-events v0.1.6
 	github.com/yeencloud/lib-httpserver v0.2.4
 	github.com/yeencloud/lib-metrics v0.2.5
 	github.com/yeencloud/lib-shared v0.2.9
