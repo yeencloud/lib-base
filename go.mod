@@ -72,13 +72,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.5.11 // indirect
 )
-
-replace github.com/yeencloud/lib-database => /Users/alice/Developer/Yeencloud/backend/libs/lib-technical/lib-database/
-
-replace github.com/yeencloud/lib-events => /Users/alice/Developer/Yeencloud/backend/libs/lib-technical/lib-events/
-
-replace github.com/yeencloud/lib-httpserver => /Users/alice/Developer/Yeencloud/backend/libs/lib-technical/lib-httpserver/
-
-replace github.com/yeencloud/lib-metrics => /Users/alice/Developer/Yeencloud/backend/libs/lib-technical/lib-metrics/
-
-replace github.com/yeencloud/lib-shared => /Users/alice/Developer/Yeencloud/backend/libs/lib-technical/lib-shared/
