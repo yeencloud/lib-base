@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,24 @@ import (
 	"github.com/yeencloud/lib-shared/config"
 )
 
+func MapRequestContextToContext(requestHeader string, contextKey string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		req := c.Request
+		ctx := req.Context()
+
+		requestHeaderValue := c.GetHeader(requestHeader)
+
+		if requestHeaderValue != "" {
+			ctx = context.WithValue(ctx, contextKey, requestHeaderValue)
+		}
+
+		// Attach the new context back to the request
+		c.Request = req.WithContext(ctx)
+
+		c.Next()
+	}
+}
+
 func (bs *BaseService) newHttpServer() error {
 	m := ginmetrics.GetMonitor()
 
@@ -22,6 +41,9 @@ func (bs *BaseService) newHttpServer() error {
 
 	service := httpserver.NewHttpServer(bs.Environment, cfg)
 	m.Use(service.Gin)
+
+	service.Gin.Use(MapRequestContextToContext("X-Request-ID", "requestid"))
+	service.Gin.Use(MapRequestContextToContext("X-Correlation-ID", "correlationid"))
 
 	service.Gin.GET("/health", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, bs.Probe.Health())
