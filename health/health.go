@@ -2,37 +2,43 @@ package health
 
 import (
 	"github.com/yeencloud/lib-base/domain/health"
+	"github.com/yeencloud/lib-shared/env"
 )
 
 type Probe struct {
-	Hostname string
-	Probes   []HealthProbe.HealthProbe `json:"probes"`
+	hostname string
+	build    env.Build
 }
 
-// TODO: Add version to the health probe
 type ServiceHealth struct {
 	Hostname string `json:"hostname"`
 
-	RawStatus HealthProbe.Status `json:"rawStatus"`
 	Status    string             `json:"status"`
+	RawStatus HealthProbe.Status `json:"rawStatus"`
+
+	Repo    string `json:"repo"`
+	Version string `json:"version"`
+	Commit  string `json:"commit"`
 }
 
 func (p *Probe) Health() *ServiceHealth {
 	currentStatus := HealthProbe.ProbeStatusHealthy
-	for _, probe := range p.Probes {
-		probeStatus := probe.ProbeStatus()
-		currentStatus = min(currentStatus, probeStatus)
-	}
 
 	return &ServiceHealth{
-		RawStatus: currentStatus,
+		Hostname: p.hostname,
+
 		Status:    currentStatus.String(),
-		Hostname:  p.Hostname,
+		RawStatus: currentStatus,
+
+		Repo:    p.build.Repository,
+		Version: p.build.AppVersion,
+		Commit:  p.build.Commit,
 	}
 }
 
-func NewHealthProbe(hostname string) *Probe {
+func NewHealthProbe(hostname string, build env.Build) *Probe {
 	return &Probe{
-		Hostname: hostname,
+		hostname: hostname,
+		build:    build,
 	}
 }

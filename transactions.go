@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/yeencloud/lib-shared/apperr"
 	"gorm.io/gorm"
 
 	"github.com/yeencloud/lib-base/transaction"
@@ -44,10 +46,30 @@ func HandleWithTransaction(http *httpserver.HttpServer, trxItf transaction.Trans
 	}
 }
 
+// TODO: Move this struct
+type DuplicateKeyError struct {
+}
+
+func (e *DuplicateKeyError) Error() string {
+	return "duplicate key value pair"
+}
+
+func (e *DuplicateKeyError) Unwrap() error {
+	return &apperr.ResourceConflictError{}
+}
+
+func gormHandleError(err error) error {
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return errors.Join(&DuplicateKeyError{}, err)
+	}
+	return err
+}
+
 func WithTransaction(ctx context.Context, fn func(db *gorm.DB) error) error {
 	db, err := database.GetDatabaseFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	return fn(db.WithContext(ctx))
+
+	return gormHandleError(fn(db.WithContext(ctx)))
 }

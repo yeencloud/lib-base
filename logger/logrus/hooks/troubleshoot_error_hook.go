@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	sharedErrors "github.com/yeencloud/lib-shared/errors"
+	sharedErrors "github.com/yeencloud/lib-shared/apperr"
 )
 
 type FixableErrorHook struct{}
@@ -32,7 +32,7 @@ func (hook FixableErrorHook) Fire(entry *log.Entry) error {
 
 	var fixable sharedErrors.FixableError
 	if errors.As(err, &fixable) {
-		println("How to fix: ", fixable.HowToFix()) //nolint:forbidigo
+		println("How to fix: ", fixable.TroubleshootingTip()) //nolint:forbidigo
 		return nil
 	}
 

@@ -10,7 +10,6 @@ import (
 	database "github.com/yeencloud/lib-database"
 	events "github.com/yeencloud/lib-events"
 	"github.com/yeencloud/lib-httpserver"
-	metrics "github.com/yeencloud/lib-metrics"
 	"github.com/yeencloud/lib-shared/config"
 	"github.com/yeencloud/lib-shared/config/source/environment"
 	"github.com/yeencloud/lib-shared/env"
@@ -29,7 +28,6 @@ type BaseService struct {
 
 	database     *database.Database
 	http         *httpserver.HttpServer
-	metrics      *metrics.Metrics
 	redis        *redis.Client
 	mqSubscriber *events.Subscriber
 	mqPublisher  *events.Publisher
@@ -57,8 +55,6 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 
 		hostname: hostname,
 		options:  options,
-
-		Probe: health.NewHealthProbe(hostname),
 	}
 
 	envVar, err := config.FetchConfig[env.Environment]()
@@ -74,17 +70,14 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 		return nil, err
 	}
 
-	// TODO: Log version and commit hash
+	bs.Probe = health.NewHealthProbe(hostname, *buildInfo)
+
 	log.
 		WithField("service", serviceName).
 		WithField("hostname", hostname).
 		WithField("version", buildInfo.AppVersion).
 		WithField("build", buildInfo.Commit).
 		Info("Start service")
-	err = bs.provideMetrics(hostname)
-	if err != nil {
-		return nil, err
-	}
 
 	validateEngine, err := NewValidator()
 	if err != nil {
@@ -92,13 +85,6 @@ func newService(serviceName string, options Options) (*BaseService, error) {
 	}
 
 	bs.Validator = validateEngine
-
-	// Sending start metric as soon as possible
-	err = bs.trackServiceStart(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-
 	if options.UseDatabase {
 		log.Info("starting database")
 		err = bs.newDatabase()

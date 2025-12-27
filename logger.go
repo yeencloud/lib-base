@@ -9,7 +9,6 @@ import (
 	"github.com/yeencloud/lib-shared/env"
 )
 
-// TODO: Determine if we should log the version and commit hash
 func configureLogger(env *env.Environment) {
 	if env.IsProduction() {
 		log.SetFormatter(&log.JSONFormatter{})
